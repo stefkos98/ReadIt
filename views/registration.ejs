@@ -1,0 +1,40 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!--> <html> <!--<![endif]-->
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title></title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="pom.css">
+    </head>
+    <body class="text-center">
+        <%- include('partials/navbar.ejs'); %>
+        <div class='container' style='width:50%;'>
+        <form method="post" action="/register">
+          <h1 class="h2 mb-3 font-weight-normal" style='margin-top:5%;'>Napravite nalog</h1>
+
+              <label>Izaberite tip korisnika:</label>
+              <select id="korisnik" name="tip">
+              <option value="korisnik">Korisnik</option>
+              <option value="autoprevoznik">Autoprevoznik</option>
+              </select>
+
+              <label for="inputIme" class="sr-only">Ime</label>
+              <input type="text" id="inputIme" class="form-control" name='name' placeholder="Ime" required autofocus/>
+              <label for="inputUsername" class="sr-only">Username</label>
+              <input type="text" id="inputUsername" class="form-control" name='username' placeholder="Username" required autofocus/>
+              <label for="inputEmail" class="sr-only">Email</label>
+              <input type="text" id="inputEmail" class="form-control" name='email' placeholder="Email" required autofocus/>
+              <label for="inputPassword" class="sr-only">Password</label>
+              <input type="password" id="inputPassword" class="form-control" name='password' placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,}" title="Mora da sadrzi bar jedan broj, jedno malo slovo, jedno veliko slovo i bar 7 karaktera." required />
+              <label for="inputTelefon" class="sr-only">Telefon</label>
+              <input type="text" id="inputTelefon" class="form-control" name='telefon' placeholder="Telefon - Primer 0631234567" pattern="^06\d{7,8}$" title="Morate uneti format telefona." required autofocus/>
+              <button class="btn btn-lg btn-primary btn-block" type="submit">Napravite nalog</button>
+              <p class="mt-5 mb-3 text-muted">&copy; 2021</p>
+            </form>
+          </div>
+            <%- include ('partials/footer.ejs'); %>
