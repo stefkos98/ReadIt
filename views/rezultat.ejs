@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>ReadIt</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="pom.css">
+    </head>
+    <body>
+        <%- include("partials/navbar.ejs") %>
+        <div class='container'>
+            <ul>
+                <div class='jumbotron'>
+                    <h1>Rezultati pretrage</h1>
+                </div>
+                <div class='row'>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Naziv</th>
+                                        <th scope="col">Godina</th>
+                                        <th scope="col">Ocena</th>
+                                        <th scope="col">Zanr</th>
+                                        <th scope="col">Pisac</th>
+                                        <th scope="col">Drzava</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i=0;i<tabela.length;i++){%>
+                                    <tr>
+                                        <%if (i<tabela.length-1 && tabela[i].get(0).properties.naziv==tabela[i+1].get(0).properties.naziv){%>
+                                        <%s+=", ";%>
+                                        <%s+=tabela[i].get(1).properties.naziv;%>
+                                        <%continue;%>
+                                        <%}%>
+                                        <th scope="row"><%=k++%></th>
+                                        <td><%=tabela[i].get(0).properties.naziv%></td>
+                                        <td><%=tabela[i].get(0).properties.godina%></td>
+                                        <td><%=tabela[i].get(0).properties.ocena%></td>
+                                        <td><%=tabela[i].get(1).properties.naziv%> <%=s%></td>
+                                        <%s="";%>
+                                        <td><%=tabela[i].get(2).properties.ime%> <%=tabela[i].get(2).properties.prezime%></td>
+                                        <td><%=tabela[i].get(2).properties.drzava%></td>
+                                    </tr>
+                                    <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+    
+                </div>
+            </ul>
+        </div>
+        <%- include("partials/footer.ejs") %>
+
+    </body>
+</html>

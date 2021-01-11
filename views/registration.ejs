@@ -17,14 +17,10 @@
         <form method="post" action="/register">
           <h1 class="h2 mb-3 font-weight-normal" style='margin-top:5%;'>Napravite nalog</h1>
 
-              <label>Izaberite tip korisnika:</label>
-              <select id="korisnik" name="tip">
-              <option value="korisnik">Korisnik</option>
-              <option value="autoprevoznik">Autoprevoznik</option>
-              </select>
-
               <label for="inputIme" class="sr-only">Ime</label>
               <input type="text" id="inputIme" class="form-control" name='name' placeholder="Ime" required autofocus/>
+              <label for="inputPrezime" class="sr-only">Prezime</label>
+              <input type="text" id="inputPrezime" class="form-control" name='lastname' placeholder="Prezime" required autofocus/>
               <label for="inputUsername" class="sr-only">Username</label>
               <input type="text" id="inputUsername" class="form-control" name='username' placeholder="Username" required autofocus/>
               <label for="inputEmail" class="sr-only">Email</label>

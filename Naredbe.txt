@@ -1,0 +1,37 @@
+CREATE (k:Knjiga {naziv:"Ubiti pticu rugalicu", godina:"1960", ocena:0.0, brocena: 0}) RETURN k
+CREATE (k:Knjiga {naziv:"Idi postavi strazara", godina:"2015", ocena:0.0, brocena: 0}) RETURN k
+
+CREATE (k:Pisac {ime:"Harper", prezime:"Li", biografija:"Poznata po knjizi Ubiti pticu rugalicu, za koju je dobila Pulicerovu nagradu", grodjenja: 1926, gsmrti:2016, drzava:"Amerika"}) RETURN k
+
+MATCH (a:Knjiga),(b:Pisac)
+WHERE a.naziv = "Ubiti pticu rugalicu" AND b.ime = "Harper"
+CREATE (b)-[r:NAPISAO]->(a)
+RETURN type(r)
+
+MATCH (a:Knjiga),(b:Pisac)
+WHERE a.naziv = "Idi postavi strazara" AND b.ime = "Harper"
+DELETE (b)-[r:NAPISAO]->(a)
+RETURN type(r)
+
+CREATE (k:Zanr {naziv:"Novela") RETURN k
+CREATE (k:Zanr {naziv:"Istorijski"}) RETURN k
+
+MATCH (a:Knjiga),(b:Zanr)
+WHERE a.naziv = "Ubiti pticu rugalicu" AND b.naziv = "Novela"
+CREATE (a)-[r:PRIPADA_ZANRU]->(b)
+RETURN type(r)
+
+MATCH (a:Knjiga),(b:Zanr)
+WHERE a.naziv = "Ubiti pticu rugalicu" AND b.naziv = "Istorijski"
+CREATE (a)-[r:PRIPADA_ZANRU]->(b)
+RETURN type(r)
+
+MATCH (a:Knjiga),(b:Zanr)
+WHERE a.naziv = "Idi postavi strazara" AND b.naziv = "Istorijski"
+CREATE (a)-[r:PRIPADA_ZANRU]->(b)
+RETURN type(r)
+
+MATCH (n:Zanr) WHERE n.naziv=~".*" RETURN n
+
+MATCH (p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE k.naziv=~ ".*" AND k.godina=~ ".*" AND k.ocena>= ".*" AND  RETURN k
+

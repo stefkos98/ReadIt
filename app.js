@@ -9,11 +9,11 @@ app.use(bodyParser.json());
 app.use(express.static("public"));
 
 // NEO4J
-var neo4j=require('neo4j-driver');
+var neo4j = require('neo4j-driver');
 var driver = neo4j.driver(
-    'bolt://localhost:7687',
-    neo4j.auth.basic('neo4j', 'Ss1998!!!')
-  )
+  'bolt://localhost:7687',
+  neo4j.auth.basic('neo4j', 'Ss1998!!!')
+)
 var session = driver.session();
 
 //FLASH PORUKE
@@ -42,6 +42,7 @@ var passport = require('passport');
 var localStrategy = require('passport-local');
 app.use(passport.initialize());
 app.use(passport.session());
+
 // PASSPORT SERIJALIZACIJA I DESERIJALIZACIJA USERA
 passport.serializeUser(function (user, done) {
   return done(null, user);
@@ -50,33 +51,21 @@ passport.deserializeUser(function (user, done) {
   if (user != null)
     return done(null, user);
 });
-passport.use('autoprevozniklocal', new localStrategy({ usernameField: 'email' }, async function (username, password, done) {
-  const rs = await client.execute("SELECT * FROM rbus.\"Autoprevoznik\" WHERE email=\'" + username + "\'");
-  for (var i = 0; i < rs.rows.length; i++) {
-    if (rs.rows[i].email != username) {
-      return done(null, false, { message: 'Incorrect username.' });
-    }
-    const t = await bcrypt.compare(password, rs.rows[i].password);
-    if (!t) return done(null, false, { message: 'Incorrect password' });
-    return done(null, rs.rows[i]);
-  }
-  return done(null, false, { message: 'Incorrect username.' });
-}));
-passport.use('korisniklocal', new localStrategy({ usernameField: 'email' }, async function (username, password, done) {
-  const rs = await client.execute("SELECT * FROM rbus.\"Korisnik\" WHERE email=\'" + username + "\'");
-  for (var i = 0; i < rs.rows.length; i++) {
-    if (rs.rows[i].email != username) {
-      return done(null, false, { message: 'Incorrect username.' });
-    }
-    const t = await bcrypt.compare(password, rs.rows[i].password);
-    if (!t) return done(null, false, { message: 'Incorrect password' });
-    return done(null, rs.rows[i]);
-  }
-  return done(null, false, { message: 'Incorrect username.' });
-}));
-/*
-//LOGIN
 
+passport.use('korisniklocal', new localStrategy({ usernameField: 'email' }, async function (email, password, done) {
+  const korisnik = await session.run('MATCH (k :Korisnik {email: $e}) RETURN k', { e: email });
+
+  if (korisnik.records[0].get(0).properties.email != email) {
+    return done(null, false, { message: 'Incorrect email.' });
+  }
+  else {
+    const t = await bcrypt.compare(password, korisnik.records[0].get(0).properties.sifra);
+    if (!t) return done(null, false, { message: 'Incorrect password' });
+    return done(null, korisnik.records[0].get(0).properties);
+  }
+}));
+
+//LOGIN
 app.get("/login", function (req, res) {
   if (req.user != undefined) {
     req.flash("error", "Vec ste ulogovani");
@@ -84,9 +73,10 @@ app.get("/login", function (req, res) {
   }
   else res.render('login.ejs', { user: req.user });
 });
-app.post('/login', passport.authenticate(["autoprevozniklocal", "korisniklocal"], { successRedirect: "/", failureRedirect: "/login" }), (req, res) => { });
+app.post('/login', passport.authenticate(["korisniklocal"], { successRedirect: "/", failureRedirect: "/login" }), (req, res) => { });
 
 app.get('/logout', (req, res) => { req.logout(); req.flash("success", "Uspesna odjava"); res.redirect('/') });
+
 
 app.get("/register", (req, res) => {
   if (req.user != undefined) {
@@ -101,20 +91,15 @@ app.post("/register", async function (req, res) {
     req.flash("error", "Vec ste ulogovani");
     res.redirect("/");
   }
-  var postojiemail = await client.execute("SELECT * FROM rbus.\"Korisnik\" WHERE email=\'" + req.body.email + "\'");
-  if (postojiemail.rows.length > 0)
-    postojiemail = await client.execute("SELECT * FROM rbus.\"Autoprevoznik\" WHERE email=\'" + req.body.email + "\'");
-  var postojiusername = await client.execute("SELECT * FROM rbus.\"Autoprevoznik\" WHERE email=\'" + req.body.username + "\'");
-  if (postojiusername.rows.length > 0)
-    postojiusername = await client.execute("SELECT * FROM rbus.\"Korisnik\" WHERE email=\'" + req.body.username + "\'");
-  if (!validator.isEmail(req.body.email) || postojiemail.rows.length > 0) {
+  var postojiemail = await session.run('MATCH (k :Korisnik {email: $e}) RETURN k', { e: req.body.email });
+  var postojiusername = await session.run('MATCH (k :Korisnik {email: $e}) RETURN k', { e: req.body.username });
 
+  if (!validator.isEmail(req.body.email) || postojiemail.length > 0) {
     req.flash("error", "Email nije validan!");
     res.redirect("/register");
   }
   else {
-
-    if (postojiusername.rows.length > 0) {
+    if (postojiusername.length > 0) {
       req.flash("error", "Vec postoji korisnik sa tim username-om, izaberite drugi!");
       res.redirect("/register");
     }
@@ -125,32 +110,56 @@ app.post("/register", async function (req, res) {
         res.redirect("/register");
       }
       else {
-        if (req.body.tip == 'korisnik') {
-          await client.execute(`INSERT INTO rbus.\"Korisnik\" (id,username,password,name,phone,email) VALUES (uuid(),\'${req.body.username}\',\'${await bcrypt.hash(req.body.password, 8)}\',\'${req.body.name}\',\'${req.body.telefon}\',\'${req.body.email}\')`);
-        }
-        else {
-          await client.execute(`INSERT INTO rbus.\"Autoprevoznik\" (\"AutoprevoznikID\",username,password,email,naziv,telefon) VALUES (uuid(),\'${req.body.username}\',\'${await bcrypt.hash(req.body.password, 8)}\',\'${req.body.email}\',\'${req.body.name}\',\'${req.body.telefon}\')`);
+        await session.run('CREATE (k :Korisnik {ime: $ime, prezime: $prezime, username: $username, email: $e, sifra: $sifra, telefon: $telefon}) RETURN k',
+          { ime: req.body.name, prezime: req.body.lastname, username: req.body.username, e: req.body.email, sifra: await bcrypt.hash(req.body.password, 8), telefon: req.body.telefon, });
 
-        }
         req.flash("success", "Uspesna registracija, sada se mozete ulogovati!");
         res.redirect("/");
       }
     }
   }
 });
-*/
-app.get("/", function (req, res) {
-  res.render("home.ejs", { user: req.user });
+
+app.get("/", async function (req, res) {
+  const zanrovi = await session.run('MATCH (n :Zanr) RETURN n');
+
+  res.render("home.ejs", { user: req.user, zanrovi: zanrovi });
 });
+
+app.get("/search", async function (req, res) {
+
+  let nazivknjige = req.query.nazivknjige;
+  if (nazivknjige == "" || nazivknjige == undefined) nazivknjige = ".*";
+  else nazivknjige = ".*" + nazivknjige + ".*";
+  let zanr = req.query.zanr;
+  if (zanr == "0" || zanr == undefined) zanr = ".*";
+  let godina = req.query.godina;
+  if (godina == "" || godina == undefined) godina = ".*";
+  let ocena = req.query.ocena
+  if (ocena == "" || ocena == undefined) ocena = 0.0;
+  else ocena = parseInt(req.query.ocena);
+  let imep = req.query.imep;
+  if (imep == "" || imep == undefined) imep = ".*";
+  let prezimep = req.query.prezimep;
+  if (prezimep == "" || prezimep == undefined) prezimep = ".*";
+  let drzava = req.query.drzava;
+  if (drzava == "" || drzava == undefined) drzava = ".*";
+
+  let tabela = await session.run('MATCH (p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE k.naziv=~ $n AND k.godina=~ $g AND k.ocena>=$o AND z.naziv=~$zn AND p.ime=~$ime AND p.prezime=~$prezime AND p.drzava=~$d WITH k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { n: nazivknjige, g: godina, o: ocena, zn: zanr, ime: imep, prezime: prezimep, d: drzava });
+  let s = "";
+  let k = 1;
+  res.render("rezultat.ejs", { user: req.user, tabela: tabela.records, s, k });
+});
+
 // STARTOVANJE SERVERA
 app.listen(3000, async function () {
-    console.log("Listening on port 3000");
-    session.run('CREATE (n {age: $myIntParam})', {
-        myIntParam: neo4j.int('9223372036854775807')
-      })
-  });
-  // GASENJE APP
+  console.log("Listening on port 3000");
+  //session.run('CREATE (n {age: $myIntParam})', {
+  //    myIntParam: neo4j.int('9223372036854775807')
+  //  })
+});
 
+// GASENJE APP
 process.stdin.resume();//so the program will not close instantly
 
 async function exitHandler(options, exitCode) {

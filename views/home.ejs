@@ -15,46 +15,38 @@
     <body>
         <%- include("partials/navbar.ejs") %>
             <div class='container' style='width:50%;'>
-                <form method="post" action="/">
-                  <h1 class="h2 mb-3 font-weight-normal" style='margin-top:5%;'>Izaberite liniju</h1>
+                <form method="get" action="/search">
+                  <h1 class="h2 mb-3 font-weight-normal" style='margin-top:5%;'>Pretraga knjiga:</h1>
 
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="povratna" id="exampleRadios1" value="NE" checked>
-                    <label class="form-check-label" for="exampleRadios1">
-                      Karta u jednom smeru
-                    </label>
-                  </div>
-                  <div class="form-check">
-                    <input class="form-check-input" type="radio" name="povratna" id="exampleRadios2" value="DA">
-                    <label class="form-check-label" for="exampleRadios2">
-                      Povratna karta
-                    </label>
-                  </div><br />
-                  <div id="blabla">
-                      <label  id="bla1">Polaziste:</label>
-                      <input type="text" id="inputPolaziste" class="form-control" name='polaziste' required autofocus/>
-                    </div>
-                      <div id="blabla">
-                      <label id="bla">Odrediste:</label>
-                      <input type="text" id="inputOdrediste" class="form-control" name='odrediste'  required autofocus/>
-                    </div>
-                      <label>Datum polaska:</label>
-                      <input type="date" id="inputDatum1" class="form-control" name='datum1' placeholder="Datum polaska" required autofocus/>
-                      <div id="datum2">
-                      <label>Datum povratka:</label>
-                      <input type="date" id="inputDatum2" class="form-control" name='datum2' placeholder="Datum povratka" autofocus/>
-                      </div>
-                      <label>Broj putnika:</label>
-                      <input type="number" id="inputBrojPutnika" class="form-control" name="brputnika" value="1" min="1" max="30" required autofocus/>
+                      <label>Naziv knjige:</label>
+                      <input type="text" class="form-control" name='nazivknjige' autofocus/>
+                      
+                      <label>Izaberite zanr:</label>
+                      <select class="form-control" aria-label="Default select example" name="zanr">
+                      <option selected value="0">Bilo koji</option>
+                      <%for (let i=0; i<zanrovi.records.length; i++) {%>
+                          <option value="<%=zanrovi.records[i].get(0).properties.naziv%>"><%=zanrovi.records[i].get(0).properties.naziv%></option>
+                      <%}%>
+                      </select>
+                      <label>Godina izdavanja:</label>
+                      <input type="text" class="form-control" name='godina' autofocus/>
 
-                        <label>Autoprevoznik:</label>
-                        <input type="text" id="inputAutoprevoznik" class="form-control" name='prevoznik' autofocus/>
-                    <br />
+                      <label>Ocena veca ili jednaka od:</label>
+                      <input type="number" class="form-control" name='ocena' value="0" min="0" max="10" autofocus/>
+                      
+                      <label>Ime pisca:</label>
+                      <input type="text" class="form-control" name='imep' autofocus/>
+                      
+                      <label>Prezime pisca:</label>
+                      <input type="text" class="form-control" name='prezimep' autofocus/>
+
+                      <label>Drzava:</label>
+                      <input type="text" class="form-control" name='drzava' autofocus/>
+                    
                       <button class="btn btn-lg btn-primary btn-block" type="submit">Pretrazi</button>
                       
                     </form>
                   </div>
-                  <script src="pom.js"></script>
         <%- include("partials/footer.ejs") %>
 
         <script src="" async defer></script>
