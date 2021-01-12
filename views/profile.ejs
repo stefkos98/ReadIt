@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pom.css">
+
+</head>
+
+<body>
+    <%- include ('partials/navbar.ejs')%>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-3'>
+                    <p class='lead' style="color: rgb(0, 89, 255);">ReadIt</p>
+                    <div class='list-group'>
+                        <button id="b1" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Prikaži podatke o korisniku</button>
+                        <button id="b2" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Prikaži pročitane knjige</button>
+                        <button id="b3" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Prikaži knjige koje želim da pročitam</button>
+                        <button id="b4" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Personalizovana pretraga</button>
+                    </div>
+                </div>
+                <div class='col-md-9'>
+                    <br>
+                    <br>
+                    <div id="id1" class='col-md-9'>
+                        <% if(user!=undefined) {%>
+                            <dl class="row">
+                                <dt class="col-sm-3">Ime korisnika</dt>
+                                <dd class="col-sm-9">
+                                    <%= user.ime %>
+                                </dd>
+
+                                <dt class="col-sm-3">Prezime korisnika</dt>
+                                <dd class="col-sm-9">
+                                    <%= user.prezime %>
+                                </dd>
+
+                                <dt class="col-sm-3">Telefon</dt>
+                                <dd class="col-sm-9">
+                                    <%=user.telefon%>
+                                </dd>
+
+                                <dt class="col-sm-3">Username</dt>
+                                <dd class="col-sm-9">
+                                    <%= user.username %>
+                                </dd>
+
+                                <dt class="col-sm-3">Email</dt>
+                                <dd class="col-sm-9">
+                                    <%= user.email %>
+                                </dd>
+
+                                <button style="margin-left: 170px; width: 150px;" id="btn1" class="btn btn-info">Izmeni
+                                    podatke</button>
+                            </dl>
+                            <hr>
+                            <%}%>
+                    </div>
+                    <div id="id2" class='col-md-9'>
+                        <% if(user!=undefined) {%>
+                            <form method='post' action='/profile/edit/<%=user.email%>?_method=PUT'>
+
+                                <div class="form-group">
+                                    <label for="inputIme">Ime:</label>
+                                    <input type="text" id="inputIme" class="form-control" name='ime' value=<%=user.ime
+                                        %>
+                                    required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputPrezime">Prezime:</label>
+                                    <input type="text" id="inputPrezime" class="form-control" name='prezime'
+                                        value=<%=user.prezime %>
+                                    required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputTelefon">Telefon:</label>
+                                    <input type="text" id="inputTelefon" class="form-control" name='telefon'
+                                        value="<%=user.telefon%>" pattern="^06\d{7,8}$"
+                                        title="Morate uneti format telefona." required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputUsername">Username:</label>
+                                    <input type="text" id="inputUsername" class="form-control" name='username'
+                                        value=<%=user.username %> required disabled>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputEmail">Email:</label>
+                                    <input type="email" id="inputEmail" class="form-control" name='email'
+                                        value=<%=user.email %> required disabled>
+                                    <small id="emailHelp" class="form-text text-muted">Necemo podeliti vasu adresu ni sa
+                                        kim.</small>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputPassword2">Nova sifra:</label>
+                                    <input type="password" id="inputPassword2" class="form-control" name='sifra2'
+                                        placeholder="New Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,}"
+                                        title="Mora da sadrzi bar jedan broj, jedno malo slovo, jedno veliko slovo i bar 7 karaktera.">
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="inputPassword">Unesite trenutnu sifru da biste potvrdili
+                                        promene:</label>
+                                    <input type="password" id="inputPassword" class="form-control" name='sifra'
+                                        placeholder="Password" pattern="(?=.*\d)(?=.*[a-z])(?=.*[A-Z]).{7,}"
+                                        title="Mora da sadrzi bar jedan broj, jedno malo slovo, jedno veliko slovo i bar 7 karaktera."
+                                        required>
+                                </div>
+
+                                <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                            </form>
+                            <%}%>
+                                <br>
+                                <button class="btn btn-danger" data-toggle="modal" data-target="#myModal1">Brisanje
+                                    naloga</button>
+                                <!-- pocetak modala -->
+                                <div class="modal" id="myModal1" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Brisanje korisnika <%= user.username %>
+                                                </h5>
+                                                <button type="button" class="close" data-dismiss="modal"
+                                                    aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Da li ste sigurni da zelite da obrišete Vaš nalog?</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Odustani</button>
+                                                <form method='post' action='/profile/<%=user.email%>?_method=DELETE'>
+                                                    <button type="submit" class="btn btn-danger">Izbriši</button>
+                                                </form>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <!-- kraj modala -->
+                    </div>
+
+                    <div id="id3">
+                        <% if(tabela1==undefined){ %>
+                            <h1> Nema unetih knjiga</h1>
+                            <br>
+                            <%}else{%>
+                                <h1>Pročitane knjige:</h1>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Naziv</th>
+                                                <th scope="col">Godina</th>
+                                                <th scope="col">Ocena</th>
+                                                <th scope="col">Žanr</th>
+                                                <th scope="col">Pisac</th>
+                                                <th scope="col">Država</th>
+                                                <th scope="col">Vaša ocena i komentar</th>
+                                                <th scope="col"></th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for(var i=0;i<tabela1.length;i++){%>
+                                                <tr>
+                                                    <%if (i<tabela1.length-1 &&
+                                                        tabela1[i].get(0).properties.naziv==tabela1[i+1].get(0).properties.naziv){%>
+                                                        <%s1+=", ";%>
+                                                    <%s1+=tabela1[i].get(1).properties.naziv;%>
+                                                    <%continue;%>
+                                                    <%}%>
+                                                    <th scope=" row">
+                                                            <%=k1++%>
+                                                                </th>
+                                                                <td>
+                                                                    <%=tabela1[i].get(0).properties.naziv%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela1[i].get(0).properties.godina%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela1[i].get(0).properties.ocena%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela1[i].get(1).properties.naziv%>
+                                                                        <%=s1%>
+                                                                </td>
+                                                                <%s1="";%>
+                                                                    <td>
+                                                                        <%=tabela1[i].get(2).properties.ime%>
+                                                                            <%=tabela1[i].get(2).properties.prezime%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%=tabela1[i].get(2).properties.drzava%>
+                                                                    </td>
+                                                                    <%if(o[i]!=undefined){%>
+                                                                        <td>
+                                                                            <%=o[i]%> "<%=kom[i]%>"
+                                                                        </td>
+                                                                        <td>
+                                                                            <form method='post'
+                                                                                action='/profile/obrisiocenu/<%=user.email%>/<%=tabela1[i].get(0).properties.naziv%>/<%=tabela1[i].get(0).properties.godina%>/<%=tabela1[i].get(0).properties.brocena%>/<%=tabela1[i].get(0).properties.ocena%>/<%=o[i]%>/<%=kom[i]%>?_method=DELETE'>
+                                                                                <button type="submit"
+                                                                                    class="btn btn-info"> Izbrisi ocenu
+                                                                                    i komentar</button>
+                                                                            </form>
+                                                                        </td>
+                                                                        <%}else{%>
+                                                                            <td><button type="button" id="btn0"
+                                                                                    class="btn btn-info btn0"
+                                                                                    value="<%=tabela1[i].get(0).properties.godina%> <%=tabela1[i].get(0).properties.ocena%> <%=tabela1[i].get(0).properties.brocena%> <%=tabela1[i].get(0).properties.naziv%>">
+                                                                                    Oceni knjigu i dodaj
+                                                                                    komentar</button>
+                                                                            </td>
+                                                                            <%}%>
+                                                </tr>
+                                                <%}%>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <%}%>
+                    </div>
+
+                    <div id="id0" class='col-md-9'>
+                        <form method='post' action='/profile/oceni/<%=user.email%>?_method=PUT'>
+
+                            <input type="text" name="skriven" style="display:none" id="skriven">
+
+                            <div class="form-group">
+                                <label for="inputOcena">Ocena:</label>
+                                <input type="number" id="inputOcena" class="form-control" name='ocena' value="0" min="0"
+                                    max="10" required>
+                            </div>
+
+                            <div class="form-group">
+                                <label for="inputKomentar">Komentar:</label>
+                                <input type="text" id="inputKomentar" class="form-control" name='komentar' value="">
+                            </div>
+
+                            <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                        </form>
+                    </div>
+
+                    <div id="id4">
+                        <% if(tabela2==undefined){ %>
+                            <h1>Nema unetih knjiga</h1>
+                            <br>
+                            <%}else{%>
+                                <h1>Lista želja:</h1>
+                                <div class="table-responsive">
+                                    <table class="table table-hover">
+                                        <thead class="thead-dark">
+                                            <tr>
+                                                <th scope="col">#</th>
+                                                <th scope="col">Naziv</th>
+                                                <th scope="col">Godina</th>
+                                                <th scope="col">Ocena</th>
+                                                <th scope="col">Žanr</th>
+                                                <th scope="col">Pisac</th>
+                                                <th scope="col">Država</th>
+                                                <th scope="col">Izbaci iz liste želja</th>
+                                                <th scope="col">Oznaci kao pročitano</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            <% for(var i=0;i<tabela2.length;i++){%>
+                                                <tr>
+                                                    <%if (i<tabela2.length-1 &&
+                                                        tabela2[i].get(0).properties.naziv==tabela2[i+1].get(0).properties.naziv){%>
+                                                        <%s+=", ";%>
+                                                    <%s+=tabela2[i].get(1).properties.naziv;%>
+                                                    <%continue;%>
+                                                    <%}%>
+                                                    <th scope=" row">
+                                                            <%=k++%>
+                                                                </th>
+                                                                <td>
+                                                                    <%=tabela2[i].get(0).properties.naziv%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela2[i].get(0).properties.godina%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela2[i].get(0).properties.ocena%>
+                                                                </td>
+                                                                <td>
+                                                                    <%=tabela2[i].get(1).properties.naziv%>
+                                                                        <%=s%>
+                                                                </td>
+                                                                <%s="";%>
+                                                                    <td>
+                                                                        <%=tabela2[i].get(2).properties.ime%>
+                                                                            <%=tabela2[i].get(2).properties.prezime%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <%=tabela2[i].get(2).properties.drzava%>
+                                                                    </td>
+                                                                    <td>
+                                                                        <form method='post' action='/profile/izbaci/<%=user.email%>/<%=tabela2[i].get(0).properties.naziv%>/<%=tabela2[i].get(0).properties.godina%>?_method=DELETE'>
+                                                                            <button type="submit" class="btn btn-info">Izbaci</button>
+                                                                        </form>
+                                                                    </td>
+                                                                    <td>
+                                                                        <form method='post' action='/profile/procitanoizlistezelja/<%=user.email%>/<%=tabela2[i].get(0).properties.naziv%>/<%=tabela2[i].get(0).properties.godina%>?_method=PUT'>
+                                                                            <button type="submit" class="btn btn-info">Pročitano</button>
+                                                                        </form>
+                                                                    </td>
+                                                </tr>
+                                                <%}%>
+                                        </tbody>
+                                    </table>
+                                </div>
+                                <%}%>
+                    </div>
+
+                    <div id="id5" class='col-md-9'>
+                        <!-- STEFAN KUCA OVDEEEE -->
+                    </div>
+
+                </div>
+            </div>
+        </div>
+</body>
+<script src="pomprofile.js"></script>
+<script>
+    var btn1 = document.getElementById("btn1");
+    var btn0 = document.getElementsByClassName("btn0");
+    var p0 = document.getElementById("id0");
+    var p1 = document.getElementById("id1");
+    var p2 = document.getElementById("id2");
+    var p3 = document.getElementById("id3");
+    var p4 = document.getElementById("id4");
+    var p5 = document.getElementById("id5");
+
+    let vrednost = document.getElementById('skriven');
+
+    for (let i = 0; i < btn0.length; i++)
+        btn0[i].addEventListener("click", function () {
+            btn1.style.display = "none";
+            p1.style.display = "none";
+            p2.style.display = "none";
+            p3.style.display = "none";
+            p4.style.display = "none";
+            p5.style.display = "none";
+            p0.style.display = "block";
+            vrednost.value = btn0[i].value;
+            console.log(vrednost.value);
+        })
+</script>
+<%- include ('partials/footer.ejs'); %>
+
+</html>

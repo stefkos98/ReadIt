@@ -151,12 +151,169 @@ app.get("/search", async function (req, res) {
   res.render("rezultat.ejs", { user: req.user, tabela: tabela.records, s, k });
 });
 
+// KORISNIKOV PROFIL
+app.get("/profile", async function (req, res) {
+  if (req.user == undefined) {
+    req.flash("error", "Niste ulogovani");
+    res.redirect("/");
+  }
+  else {
+    let tabela1 = await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
+    let tabela2 = await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
+
+    let o = [];
+    let kom = [];
+    for (var i = 0; i < tabela1.records.length; i++) {
+      let naziv = tabela1.records[i].get(0).properties.naziv
+      let t1 = await session.run('MATCH (n:Korisnik)-[r1:OCENIO]->(k :Knjiga) WHERE k.naziv= $naz AND n.email= $e RETURN r1', { naz: naziv, e: req.user.email });
+      if (t1.records[0] != undefined) {
+        o.push(t1.records[0].get(0).properties.ocena);
+        kom.push(t1.records[0].get(0).properties.komentar);
+      }
+      else {
+        o.push(undefined);
+        kom.push(undefined);
+      }
+    }
+    let s1 = "";
+    let s = "";
+    let k = 1;
+    let k1 = 1;
+    res.render("profile.ejs", { user: req.user, tabela1: tabela1.records, s1, k1, o, kom, tabela2: tabela2.records, s, k });
+  }
+});
+
+app.put("/profile/oceni/:email", async function (req, res) {
+  let email = req.params.email.toString();
+  let words = req.body.skriven.split(" ");
+  let naziv = words[3].toString();
+  for (let i = 4; i < words.length; i++) {
+    naziv = naziv + " " + words[i];
+  }
+  naziv = naziv.toString();
+  let godina = words[0].toString();
+  let stara_ocena = parseInt(words[1]);
+  let brocena = parseInt(words[2]);
+  let ocena = parseInt(req.body.ocena);
+  let komentar = req.body.komentar.toString();
+  var datetime = new Date();
+  var dan = datetime.getDate();
+  if (dan < 10) dan = "0" + dan;
+  var mesec = datetime.getMonth() + 1;
+  if (mesec < 10) mesec = "0" + mesec;
+  var sati = datetime.getHours();
+  if (sati < 10) sati = "0" + sati;
+  var minuti = datetime.getMinutes();
+  if (minuti < 10) minuti = "0" + minuti;
+  var datum = dan + "." + mesec + "." + datetime.getFullYear() + ". " + sati + ":" + minuti;
+
+  await session.run('MATCH (k:Knjiga), (n:Korisnik) WHERE k.naziv= $n AND k.godina=$g AND n.email= $e  CREATE (n)-[r:OCENIO{ocena:$o,komentar:$kom,datum:$dat}]->(k)',
+    { n: naziv, g: godina, e: email, o: ocena, kom: komentar, dat: datum });
+
+  let nova_ocena = (stara_ocena * brocena + ocena) / (brocena + 1);
+  await session.run('MATCH (k:Knjiga) WHERE k.naziv= $n AND k.godina=$g SET k.ocena= $o', { n: naziv, g: godina, o: nova_ocena });
+
+  await session.run('MATCH (k:Knjiga) WHERE k.naziv= $n AND k.godina=$g SET k.brocena=k.brocena+1', { n: naziv, g: godina });
+
+  req.flash("success", "Uspesno ste uneli ocenu!");
+  res.redirect("/profile");
+});
+
+app.delete("/profile/obrisiocenu/:email/:naziv/:godina/:brocena/:pocena/:ocena/:komentar", async function (req, res) {
+  let email = req.params.email.toString();
+  let naziv = req.params.naziv.toString();
+  let godina = req.params.godina.toString();
+  let brocena = parseInt(req.params.brocena);
+  let pocena = parseInt(req.params.pocena);
+  let ocena = parseInt(req.params.ocena);
+  let komentar = req.params.komentar.toString();
+
+  await session.run('MATCH (n:Korisnik)-[r:OCENIO]->(k:Knjiga) WHERE k.naziv =$naziv AND k.godina=$g AND n.email = $e DELETE r',
+    { naziv: naziv, g: godina, e: email });
+
+  let nova_ocena = (pocena * brocena - ocena);
+  if (brocena > 1) nova_ocena = (pocena * brocena - ocena) / (brocena - 1);
+
+  await session.run('MATCH (k:Knjiga) WHERE k.naziv= $n AND k.godina=$g SET k.ocena= $o', { n: naziv, g: godina, o: nova_ocena });
+
+  await session.run('MATCH (k:Knjiga) WHERE k.naziv= $n AND k.godina=$g SET k.brocena=k.brocena-1', { n: naziv, g: godina });
+
+  req.flash("success", "Uspesno ste obrisali ocenu!");
+  res.redirect("/profile");
+});
+
+app.delete("/profile/izbaci/:email/:naziv/:godina", async function (req, res) {
+  let email = req.params.email.toString();
+  let naziv = req.params.naziv.toString();
+  let godina = req.params.godina.toString();
+
+  await session.run('MATCH (n:Korisnik)-[r:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k:Knjiga) WHERE k.naziv =$naziv AND k.godina=$g AND n.email = $e DELETE r',
+    { naziv: naziv, g: godina, e: email });
+
+  req.flash("success", "Uspesno ste izbacili knjigu iz liste zelja!");
+  res.redirect("/profile");
+});
+
+app.put("/profile/procitanoizlistezelja/:email/:naziv/:godina", async function (req, res) {
+  let email = req.params.email.toString();
+  let naziv = req.params.naziv.toString();
+  let godina = req.params.godina.toString();
+
+  await session.run('MATCH (n:Korisnik)-[r:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k:Knjiga) WHERE k.naziv=$naziv AND k.godina=$g AND n.email = $e DELETE r',
+    { naziv: naziv, g: godina, e: email });
+
+  await session.run('MATCH (n:Korisnik),(k:Knjiga) WHERE k.naziv =$naziv AND k.godina=$g AND n.email = $e CREATE (n)-[r:PROCITAO]->(k)',
+    { naziv: naziv, g: godina, e: email });
+
+  req.flash("success", "Uspesno ste oznacili knjigu kao procitanu!");
+  res.redirect("/profile");
+});
+
+//PROMENA PODATAKA O KORISNIKU
+app.put("/profile/edit/:email", async function (req, res) {
+  var email = req.params.email.toString();
+  var novasifra;
+  const t = await bcrypt.compare(req.body.sifra, req.user.sifra);
+  if (!t) {
+    req.flash("error", "Uneli ste pogresnu sifru. Podaci nisu promenjeni!");
+    res.redirect("/profile");
+  }
+  else {
+    if (req.body.sifra2 != "") {
+      novasifra = await bcrypt.hash(req.body.sifra2, 8);
+    }
+    else {
+      novasifra = req.user.sifra;
+    }
+
+    await session.run('MATCH (n:Korisnik) WHERE n.email = $e SET n.ime=$i', { e: email, i: req.body.ime.toString() });
+    await session.run('MATCH (n:Korisnik) WHERE n.email = $e SET n.prezime=$i', { e: email, i: req.body.prezime.toString() });
+    await session.run('MATCH (n:Korisnik) WHERE n.email = $e SET n.sifra=$i', { e: email, i: novasifra.toString() });
+    await session.run('MATCH (n:Korisnik) WHERE n.email = $e SET n.telefon=$i', { e: email, i: req.body.telefon.toString() });
+
+    var user = await session.run('MATCH (n:Korisnik) WHERE n.email = $e RETURN n', { e: email });
+    req.login(user.records[0].get(0).properties, function (err) {
+      if (err) return next(err);
+    });
+    req.flash("success", "Uspesno ste izmenili podatke!");
+    res.redirect("/profile");
+  }
+
+});
+
+// BRISANJE KORISNIKOVOG PROFILA
+app.delete("/profile/:email", async function (req, res) {
+  let email = req.params.email.toString();
+  await session.run('MATCH (n:Korisnik) WHERE n.email = $e DELETE n', { e: email });
+
+  req.logout();
+  req.flash("success", "Uspesno ste obrisali nalog ")
+  res.redirect("/");
+});
+
 // STARTOVANJE SERVERA
 app.listen(3000, async function () {
   console.log("Listening on port 3000");
-  //session.run('CREATE (n {age: $myIntParam})', {
-  //    myIntParam: neo4j.int('9223372036854775807')
-  //  })
 });
 
 // GASENJE APP

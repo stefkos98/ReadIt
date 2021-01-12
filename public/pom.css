@@ -1,0 +1,15 @@
+#id0, #id1, #id2, #id3, #id4, #id5, #id6, #id7, #id8, #id9{
+    display: none;
+}
+
+.a{
+    list-style-type: circle;
+}
+.list-group-item.active{
+    z-index: 0 !important;
+    background-color: #17a2b8 !important;
+    border: none !important;}
+    .form-control{
+        margin-top: 0.5%;
+        margin-bottom: 0.8%;
+      }
