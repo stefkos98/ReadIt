@@ -101,3 +101,7 @@ MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Stranac" AND b.naziv = "Klasika"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
 RETURN type(r)
+
+MATCH (b:Korisnik),(a:Korisnik)
+WHERE b.email = "marjanovictamara98@gmail.com" AND a.email = "stefko.1998@hotmail.rs"
+CREATE (b)-[r:PRATI]->(a)

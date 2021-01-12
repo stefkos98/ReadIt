@@ -160,6 +160,7 @@ app.get("/profile", async function (req, res) {
   else {
     let tabela1 = await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
     let tabela2 = await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
+    let tabela3 = await session.run('MATCH (n:Korisnik)-[r:PRATI]->(n1:Korisnik) WHERE n.email= $e RETURN n1', { e: req.user.email });
 
     let o = [];
     let kom = [];
@@ -179,7 +180,7 @@ app.get("/profile", async function (req, res) {
     let s = "";
     let k = 1;
     let k1 = 1;
-    res.render("profile.ejs", { user: req.user, tabela1: tabela1.records, s1, k1, o, kom, tabela2: tabela2.records, s, k });
+    res.render("profile.ejs", { user: req.user, tabela1: tabela1.records, s1, k1, o, kom, tabela2: tabela2.records, s, k, tabela3: tabela3.records });
   }
 });
 
@@ -309,6 +310,21 @@ app.delete("/profile/:email", async function (req, res) {
   req.logout();
   req.flash("success", "Uspesno ste obrisali nalog ")
   res.redirect("/");
+});
+
+//PRONALAZENJE PRIJATELJA
+app.get("/find", async function (req, res) {
+  res.render("find.ejs", { user: req.user});
+});
+
+// BRISANJE prijatelja
+app.delete("/profile/ukloniprijatelja/:email1/:email2", async function (req, res) {
+  let email1 = req.params.email1.toString();
+  let email2 = req.params.email2.toString();
+  await session.run('MATCH (n1:Korisnik)-[r:PRATI]->(n2:Korisnik) WHERE n1.email = $e1 AND n2.email = $e2 DELETE r', { e1: email1, e2:email2 });
+
+  req.flash("success", "Uspesno ste uklonili korisnika iz liste prijatelja!");
+  res.redirect("/profile");
 });
 
 // STARTOVANJE SERVERA

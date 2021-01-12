@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pom.css">
+
+</head>
+
+<body>
+    <%- include ('partials/navbar.ejs')%>
+        <div class='container'>
+            <ul>
+                <div class='jumbotron'>
+                    <h1>Pronadji prijatelje</h1>
+                </div>
+                <nav class="navbar navbar-light bg-light">
+                    <form class="form-inline">
+                        <button class="btn btn-outline-success" id="b1" type="button">Po username-u</button>
+                        <button class="btn btn-outline-success" id="b2" type="button">Po email-u</button>
+                        <button class="btn btn-outline-success" id="b3" type="button">Po imenu i prezimu</button>
+                    </form>
+                </nav>
+            </ul>
+        </div>
+    <script src="pom.js"></script>
+    <%- include ('partials/footer.ejs'); %>
+
+</html>
