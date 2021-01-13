@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pom.css">
+    <style>
+        .list-group-item.active {
+            background: rgb(195, 36, 48) !important;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include ('partials/navbar.ejs')%>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-3'>
+                    <p class='lead' style="color: rgb(195, 36, 48);">ReadIt</p>
+                    <div class='list-group'>
+                        <button id="b1" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Pisac</button>
+                    </div>
+                </div>
+                <div class='col-md-9'>
+                    <div id="id1">
+                        <br><br>
+                        <h1 style="color:rgb(195, 36, 48)">Dodavanje pisca:</h1>
+                        <form method='post' action='/profile/admin/pisac/<%=ime%>/<%=prezime%>/<%=naziv%>'>
+                            <label>Drzava u kojoj je pisac rodjen: </label>
+                            <input type='text' name='drzava' required class='form-control' />
+
+                            <br>
+                            <label>Godina rodjenja:</label>
+
+                            <input type='number' name='grodjenja' required class='form-control' />
+                            <br>
+                            <label>Godina smrti:</label>
+
+                            <input type='number' name='gsmrti' required class='form-control' />
+                            <br>
+                            <label>Biografija pisca:</label>
+
+                            <textarea name='biografija' col='5' class='form-control'></textarea>
+                            <br>
+                            <button class="btn btn-dark">Dodaj knjigu</button>
+                        </form>
+                    </div>
+
+                </div>
+            </div>
+        </div>
+        <%- include ('partials/footer.ejs')%>
+            <script src='pom.js'></script>
+</body>
+
+</html>

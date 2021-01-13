@@ -13,3 +13,19 @@
         margin-top: 0.5%;
         margin-bottom: 0.8%;
       }
+      @media (min-width: 720px)
+      {
+        .container{
+          max-width:920px;
+        }
+      }
+      @media (min-width: 992px)
+      {
+        .container{
+          max-width: 1160px;
+        }
+      } 
+      @media (min-width: 1200px)
+      {.container{
+        max-width: 1300px;
+      }}

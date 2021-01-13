@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pom.css">
+    <style>
+        .list-group-item.active{
+        background: rgb(195, 36, 48)!important;
+        }
+    </style>
+</head>
+
+<body>
+    <%- include ('partials/navbar.ejs')%>
+        <div class='container'>
+            <div class='row'>
+                <div class='col-md-3'>
+                    <p class='lead' style="color: rgb(195, 36, 48);">ReadIt</p>
+                    <div class='list-group'>
+                        <button id="b1" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Zanrovi</button>
+                        <button id="b2" type="button" class='list-group-item list-group-item-action'
+                            data-toggle="list">Knjige</button>
+                       
+                    </div>
+                </div>
+                <div class='col-md-9'>
+                    <div id='id1'>
+                    <h1 style="color:rgb(195, 36, 48)">Dodaj Žanr:</h1>
+                    <form method='post' action='/profile/admin/zanr'>
+                        <input type='text' name='zanr' required/>
+                        <button class="btn btn-dark">Dodaj žanr</button>
+                    </form>
+                    <h1 style="color:rgb(195, 36, 48)">Žanrovi:</h1>
+                    <% if(zanrovi!=undefined) {%>
+                    <% for(var i=0;i<zanrovi.length;i++){%>
+
+                    <dl class="row">
+                        <dt class="col-sm-3">Tip žanra:</dt>
+                        <dd class="col-sm-9"><%= zanrovi[i].get(0).properties.naziv %> </dd>
+                        <button style="margin-left: 170px; margin-top: 20px; width: 150px;" class="btn btn-danger"
+                            data-toggle="modal" data-target="#myModal4<%=zanrovi[i].get(0).properties.naziv.replace(/\s/g, '')%>">Obriši žanr</button>
+
+                    </dl>
+                    <hr>
+                    <!-- pocetak modala -->
+                    <div class="modal" id="myModal4<%=zanrovi[i].get(0).properties.naziv.replace(/\s/g, '')%>" tabindex="-1" role="dialog">
+                        <div class="modal-dialog" role="document">
+                            <div class="modal-content">
+                                <div class="modal-header">
+                                    <h5 class="modal-title">Brisanje žanra <%=zanrovi[i].get(0).properties.naziv%></h5>
+                                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                        <span aria-hidden="true">&times;</span>
+                                    </button>
+                                </div>
+                                <div class="modal-body">
+                                    <p>Da li ste sigurni da želite da obrišete ovaj žanr? Neke knjige mogu ostati bez definisanog žanra.</p>
+                                </div>
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-secondary"
+                                        data-dismiss="modal">Odustani</button>
+                                    <form method='post'
+                                        action='/profile/admin/<%=zanrovi[i].get(0).properties.naziv%>?_method=DELETE'>
+                                            <button type="submit" class="btn btn-danger">Izbriši</button>
+                                        </form>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <!-- kraj modala -->
+                   <%}%>
+                   <%}%>
+
+                  <hr>
+
+
+                </div>
+                <div id="id2">
+                    <br><br>
+                    <h1 style="color:rgb(195, 36, 48)">Dodavanje knjige:</h1>
+                    <button id="b3" class='btn btn-dark'>Dodaj knjigu</button>
+                    <div id="id3" class='col-md-6'>
+                    <form method='post' action='/profile/admin/knjiga'>
+                        <label>Naziv knjige: </label>
+                        <input type='text' name='naziv' required class='form-control'/>
+                        <select class="form-control" aria-label="Default select example" name="zanr" required multiple>
+                            <option selected disabled>Izaberite žanr:</option>
+                            <%for (let i=0; i<zanrovi.length; i++) {%>
+                                <option value="<%=zanrovi[i].get(0).properties.naziv%>"><%=zanrovi[i].get(0).properties.naziv%></option>
+                            <%}%>
+                            </select>
+                            <label>Pisac(Unesite ime i prezime):</label>
+                            <input type='text' name='autor' required class='form-control' />
+                            <br>
+                            <label>Godina izdavanja:</label>
+
+                        <input type='number' name='godina' required class='form-control' />
+                        <br>
+                        <label>Opis knjige:</label>
+
+                        <textarea name='opis' col='5' class='form-control'></textarea>
+                        <br>
+                        <button class="btn btn-dark" >Dodaj knjigu</button>
+                    </form>
+                   </div>
+                   <div id="id4">
+                    <h1 style="color:rgb(195, 36, 48)">Knjige u bazi:</h1>
+                    <div class='row'>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Naziv</th>
+                                        <th scope="col">Godina</th>
+                                        <th scope="col">Ocena</th>
+                                        <th scope="col">Obriši knjigu</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i=0;i<tabela.length;i++){%>
+                                    <tr>
+                                     
+                                        <th scope="row"><%=i+1%></th>
+                                        <td><%=tabela[i].get(0).properties.naziv%></td>
+                                        <td><%=tabela[i].get(0).properties.godina%></td>
+                                        <td><%=tabela[i].get(0).properties.ocena%></td>
+                                       <td> <button style=" width: 150px;" class="btn btn-danger"
+                                        data-toggle="modal" data-target="#myModal4<%=tabela[i].get(0).properties.naziv.replace(/\s/g, '')%>">Obriši knjigu</button>
+                                        </td>                           
+                                    </tr>
+                                         <!-- pocetak modala -->
+                                <div class="modal" id="myModal4<%=tabela[i].get(0).properties.naziv.replace(/\s/g, '')%>" tabindex="-1" role="dialog">
+                                    <div class="modal-dialog" role="document">
+                                        <div class="modal-content">
+                                            <div class="modal-header">
+                                                <h5 class="modal-title">Brisanje žanra <%=tabela[i].get(0).properties.naziv%></h5>
+                                                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                            </div>
+                                            <div class="modal-body">
+                                                <p>Da li ste sigurni da želite da obrišete ovu knjigu? Sve veze ka knjizi će biti obrisane.</p>
+                                            </div>
+                                            <div class="modal-footer">
+                                                <button type="button" class="btn btn-secondary"
+                                                    data-dismiss="modal">Odustani</button>
+                                                <form method='post'
+                                                    action='/profile/admin/knjiga/<%=tabela[i].get(0).properties.naziv%>?_method=DELETE'>
+                                                        <button type="submit" class="btn btn-danger">Izbriši</button>
+                                                    </form>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <!-- kraj modala -->
+                                    <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                </div>
+                    </div>
+                    </div>
+</div>                
+    <%- include ('partials/footer.ejs')%>
+    <script src='pom.js'></script>
+</body>
+</html>

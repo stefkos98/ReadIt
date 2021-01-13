@@ -24,6 +24,8 @@ app.use(flash());
 app.use((req, res, next) => {
   res.locals.message = req.flash("success");
   res.locals.error = req.flash("error");
+  res.locals.info = req.flash("info");
+
   next();
 
 });
@@ -54,8 +56,7 @@ passport.deserializeUser(function (user, done) {
 
 passport.use('korisniklocal', new localStrategy({ usernameField: 'email' }, async function (email, password, done) {
   const korisnik = await session.run('MATCH (k :Korisnik {email: $e}) RETURN k', { e: email });
-
-  if (korisnik.records[0].get(0).properties.email != email) {
+  if (korisnik.records.length==0 ||korisnik.records[0].get(0).properties.email != email) {
     return done(null, false, { message: 'Incorrect email.' });
   }
   else {
@@ -158,6 +159,13 @@ app.get("/profile", async function (req, res) {
     res.redirect("/");
   }
   else {
+    if(req.user.email=="sst@gmail.com")
+    {
+      const zanrovi = await session.run('MATCH (n :Zanr) RETURN n');
+      var tabela= await session.run('MATCH(n:Knjiga) return n;');
+      res.render("admin.ejs",{user:req.user,zanrovi:zanrovi.records,tabela:tabela.records});
+    }
+    else{
     let tabela1 = await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
     let tabela2 = await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga), (p:Pisac)-[r2:NAPISAO]->(k)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e WITH n, k, p, z ORDER BY k.naziv RETURN DISTINCT k,z,p', { e: req.user.email });
     let tabela3 = await session.run('MATCH (n:Korisnik)-[r:PRATI]->(n1:Korisnik) WHERE n.email= $e RETURN n1', { e: req.user.email });
@@ -181,6 +189,7 @@ app.get("/profile", async function (req, res) {
     let k = 1;
     let k1 = 1;
     res.render("profile.ejs", { user: req.user, tabela1: tabela1.records, s1, k1, o, kom, tabela2: tabela2.records, s, k, tabela3: tabela3.records });
+  }
   }
 });
 
@@ -206,8 +215,7 @@ app.put("/profile/oceni/:email", async function (req, res) {
   if (sati < 10) sati = "0" + sati;
   var minuti = datetime.getMinutes();
   if (minuti < 10) minuti = "0" + minuti;
-  var datum = dan + "." + mesec + "." + datetime.getFullYear() + ". " + sati + ":" + minuti;
-
+  var datum = datetime.getFullYear()+"-"+mesec+"-"+dan +" " + sati + ":" + minuti;
   await session.run('MATCH (k:Knjiga), (n:Korisnik) WHERE k.naziv= $n AND k.godina=$g AND n.email= $e  CREATE (n)-[r:OCENIO{ocena:$o,komentar:$kom,datum:$dat}]->(k)',
     { n: naziv, g: godina, e: email, o: ocena, kom: komentar, dat: datum });
 
@@ -326,7 +334,154 @@ app.delete("/profile/ukloniprijatelja/:email1/:email2", async function (req, res
   req.flash("success", "Uspesno ste uklonili korisnika iz liste prijatelja!");
   res.redirect("/profile");
 });
+//ADMIN
 
+app.post("/profile/admin/zanr",async (req,res)=>{
+  var zanr=await session.run('MATCH (n:Zanr) WHERE n.naziv=$n1 return n',{n1:req.body.zanr});
+  if(zanr.records.length>0)
+  {
+    req.flash("error","Uneti zanr vec postoji u bazi");
+    res.redirect("/profile");
+  }
+  else
+  {
+    await session.run('CREATE (n:Zanr {naziv:$n1}) return n',{n1:req.body.zanr});
+    req.flash("success","Uspesno ste uneli zanr");
+    res.redirect("/profile");
+  }
+})
+  app.delete("/profile/admin/:zanr",async (req,res)=>{
+    var zanr=await session.run('MATCH (n:Zanr) WHERE n.naziv=$n1 delete n',{n1:req.params.zanr});
+      req.flash("success","Uspesno ste obrisali zanr");
+      res.redirect("/profile");
+})
+ app.post("/profile/admin/knjiga",async (req,res)=>{
+  if(req.body.zanr==undefined){
+    req.flash("error","Niste izabrali zanr");
+      res.redirect("/profile");
+  }
+  else{
+  var knjiga=await session.run('CREATE (k:Knjiga{naziv:$k1,godina:$k2,opis:$k3,brocena:0,ocena:0.0}) return k',{k1:req.body.naziv,k2:req.body.godina.toString(),k3:req.body.opis});
+  for(var i=0;i<req.body.zanr.length;i++)
+  var zanr=await session.run('MATCH (a:Knjiga),(b:Zanr) WHERE a.naziv = $k1 AND b.naziv = $k2 CREATE (a)-[r:PRIPADA_ZANRU]->(b)RETURN type(r);',{k1:req.body.naziv,k2:req.body.zanr[i]});
+  var pisac= req.body.autor.split(' ');
+  var pisacbaza=await session.run('MATCH(n:Pisac) where n.ime=$n1 AND n.prezime=$n2 return n',{n1:pisac[0],n2:pisac[1]});
+  if(pisacbaza.records.length>0)
+  {
+    var veza=await session.run('MATCH (a:Knjiga),(b:Pisac) WHERE a.naziv = $k1 AND b.ime =$k2 AND b.prezime=$k3  CREATE (b)-[r:NAPISAO]->(a) RETURN type(r);',{k1:req.body.naziv,k2:pisac[0],k3:pisac[1]});
+    req.flash("success","Uspesno ste dodali knjigu u bazu");
+    res.redirect("/profile");
+  }
+  else
+  {
+    req.flash("info","Uneti autor ne postoji u bazi, unesite informacije o piscu");
+    res.redirect(`/profile/admin/pisac/${pisac[0]}/${pisac[1]}/${req.body.naziv}` );
+  }
+}
+})
+  app.get(`/profile/admin/pisac/:ime/:prezime/:naziv`,async (req,res)=>{
+    res.render("pisac.ejs",{user:req.user,ime:req.params.ime,prezime:req.params.prezime,naziv:req.params.naziv});
+  })
+  app.post(`/profile/admin/pisac/:ime/:prezime/:naziv`,async (req,res)=>{
+    var pisac=await session.run('CREATE (p:Pisac {ime:$p1,prezime:$p2,grodjenja:$p3,gsmrti:$p4,biografija:$p5,drzava:$p6}) return p',{p1:req.params.ime,p2:req.params.prezime,p3:req.body.grodjenja,p4:req.body.gsmrti,p5:req.body.biografija,p6:req.body.drzava});
+    var veza=await session.run('MATCH (a:Knjiga),(b:Pisac) WHERE a.naziv = $k1 AND b.ime =$k2 AND b.prezime=$k3  CREATE (b)-[r:NAPISAO]->(a) RETURN type(r);',{k1:req.params.naziv,k2:req.params.ime,k3:req.params.prezime});
+    req.flash("success","Uspesno ste kreirali pisca i povezali knjigu sa piscem");  
+    res.redirect("/profile")  })
+ app.delete("/profile/admin/knjiga/:naziv",async (req,res)=>{
+  var knjiga=await session.run('MATCH (n:Knjiga) WHERE n.naziv=$n1  detach delete n',{n1:req.params.naziv});
+  req.flash("success","Uspesno ste obrisali knjigu");
+  res.redirect("/profile");
+})
+// STRANICA O JEDNOJ KNJIZI
+app.get('/rezultat/:knjiga',async(req,res)=>{
+  var knjiga=await session.run('MATCH (p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) where k.naziv=$k1 return k,p,z',{k1:req.params.knjiga});
+  var komentari=await session.run('MATCH (k:Korisnik)-[r1:OCENIO]->(n:Knjiga) where n.naziv=$n1 WITH k,r1,n ORDER BY r1.datum return r1,k',{n1:req.params.knjiga});
+  var zainteresovan,nezainteresovan,procitao;
+  if(req.user!=undefined)
+  {
+    zainteresovan=await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+    if(zainteresovan.records.length>0)
+    {
+      zainteresovan="DA";
+    }
+    else
+    {
+      zainteresovan=null;
+    }
+    nezainteresovan=await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"NE"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+    if(nezainteresovan.records.length>0)
+    {
+      nezainteresovan="DA";
+    }
+    else
+    {
+      nezainteresovan=null;
+    }
+    procitao=await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+    if(procitao.records.length>0)
+    {
+      procitao="DA";
+    }
+    else
+    {
+      procitao=null;
+    }
+  }
+  else
+  {
+    nezainteresovan=zainteresovan=procitao=null;
+  }
+  res.render('knjigaview.ejs',{user:req.user,tabela:knjiga.records,book:req.params.knjiga,komentari:komentari.records,zainteresovan:zainteresovan,nezainteresovan:nezainteresovan,procitao:procitao});
+})
+// KREIRANJE VEZA IZMEDJU KNJIGA I KORISNIKA
+app.post('/knjiga/:knjiga/zainteresovan',async(req,res)=>{
+  var  zainteresovan=await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+  if(zainteresovan.records.length>0)
+  {
+    await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 delete r1;',{n1:req.user.email,n2:req.params.knjiga})
+  }
+  else
+  { 
+    //Kreiranje zainteresovan
+    await session.run('MATCH (n:Korisnik),(k:Knjiga) WHERE n.email=$n1 AND k.naziv=$n2  CREATE (n)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k)  return r1;',{n1:req.user.email,n2:req.params.knjiga})
+    // Uklanjanje nezainteresovan
+    await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"NE"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 delete r1;',{n1:req.user.email,n2:req.params.knjiga})
+
+  }
+  req.flash("success","Uspesno promenjena zainteresovanost");
+  res.redirect("/rezultat/"+req.params.knjiga);
+})
+app.post('/knjiga/:knjiga/nezainteresovan',async(req,res)=>{
+  var  zainteresovan=await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"NE"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+  if(zainteresovan.records.length>0)
+  {
+    await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"NE"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 delete r1;',{n1:req.user.email,n2:req.params.knjiga})
+  }
+  else
+  {
+    //Kreiranje nezainteresovan
+    await session.run('MATCH (n:Korisnik),(k:Knjiga) WHERE n.email=$n1 AND k.naziv=$n2  CREATE (n)-[r1:ZAINTERESOVAN_ZA{da_ne:"NE"}]->(k)  return r1;',{n1:req.user.email,n2:req.params.knjiga})
+    //Brisanje zainteresovan
+    await session.run('MATCH (n:Korisnik)-[r1:ZAINTERESOVAN_ZA{da_ne:"DA"}]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 delete r1;',{n1:req.user.email,n2:req.params.knjiga})
+
+  }
+  req.flash("success","Uspesno promenjena nezainteresovanost");
+  res.redirect("/rezultat/"+req.params.knjiga);
+})
+app.post('/knjiga/:knjiga/procitao',async(req,res)=>{
+  var  procitao=await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 return r1',{n1:req.user.email,n2:req.params.knjiga});
+  if(procitao.records.length>0)
+  {
+    await session.run('MATCH (n:Korisnik)-[r1:PROCITAO]->(k :Knjiga) WHERE n.email=$n1 AND k.naziv=$n2 delete r1;',{n1:req.user.email,n2:req.params.knjiga})
+  }
+  else
+  {
+    await session.run('MATCH (n:Korisnik),(k:Knjiga)  WHERE n.email=$n1 AND k.naziv=$n2 CREATE (n)-[r1:PROCITAO]->(k) return r1;',{n1:req.user.email,n2:req.params.knjiga})
+
+  }
+  req.flash("success","Uspesno promenjena veza");
+  res.redirect("/rezultat/"+req.params.knjiga);
+})
 // STARTOVANJE SERVERA
 app.listen(3000, async function () {
   console.log("Listening on port 3000");

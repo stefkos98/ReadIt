@@ -1,107 +1,121 @@
-CREATE (k:Knjiga {naziv:"Ubiti pticu rugalicu", godina:"1960", ocena:0.0, brocena: 0}) RETURN k
-CREATE (k:Knjiga {naziv:"Idi postavi strazara", godina:"2015", ocena:0.0, brocena: 0}) RETURN k
-CREATE (k:Knjiga {naziv:"Idi postavi strazara", godina:"2015", ocena:0.0, brocena: 0}) RETURN k
+admin nalog sst@gmail.com
+CREATE (k:Knjiga {naziv:"Ubiti pticu rugalicu", godina:"1960", ocena:0.0, brocena: 0,opis:"Iz perspektive Skaut Finč,
+ šestogodišnje devojčice odrasle u malom gradu na jugu zemlje, Harper Li na duhovit i autentičan način kritikuje rasne i 
+ klasne predrasude u američkom društvu tridesetih godina prošlog veka. U učmaloj sredini ogrezloj u nasilje i hipokriziju, 
+ moralna snaga jednog čoveka, advokata Atikusa Finča, podsetiće stanovnike Okruga Mejkom, ali i samog čitaoca, 
+ koliko je teško i važno istrajati u tome da se bude čovek. Braneći crnca optuženog za silovanje bele žene, Atikus staje u odbranu ljudskog dostojanstva i vere u ispravnost zakonodavnog sistema. Zahvaljujući snazi svog karaktera on se tako svrstava u red onih retkih junaka koji prevazilazeći okvire jednog književnog dela postaju simbol univerzalne pravičnosti."}) RETURN k;
+CREATE (k:Knjiga {naziv:"Idi postavi strazara", godina:"2015", ocena:0.0, brocena: 0,opis:"Napisan sredinom prethodnog veka,
+ roman Idi postavi stražara donosi čitaocu potpunije i bogatije shvatanje dela Harper Li. 
+ Pred nama je nezaboravna priča satkana s mnogo mudrosti, čovečnosti, strasti, humora i preciznosti postignute bez imalo napora – 
+ umetničko delo koje ostavlja duboki trag dočaravajući jedno proteklo doba i istovremeno nam saopštavajući mnogo toga o 
+ našem sopstvenom vremenu. Idi postavi stražara ne samo što potvrđuje neprolaznu izuzetnost prethodnog romana nego je i 
+njegov suštinski važan pratilac koji dodaje dubinu, kontekst i novo značenje jednom klasičnom delu američke književnosti. "}) RETURN k;
 
-CREATE (k:Pisac {ime:"Harper", prezime:"Li", biografija:"Poznata po knjizi Ubiti pticu rugalicu, za koju je dobila Pulicerovu nagradu", grodjenja: 1926, gsmrti:2016, drzava:"Amerika"}) RETURN k
+CREATE (k:Pisac {ime:"Harper", prezime:"Li", biografija:"Poznata po knjizi Ubiti pticu rugalicu, za koju je dobila Pulicerovu nagradu", grodjenja: 1926, gsmrti:2016, drzava:"Amerika"}) RETURN k;
 
 MATCH (a:Knjiga),(b:Pisac)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.ime = "Harper"
 CREATE (b)-[r:NAPISAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Pisac)
 WHERE a.naziv = "Idi postavi strazara" AND b.ime = "Harper"
 CREATE (b)-[r:NAPISAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
-CREATE (k:Zanr {naziv:"Novela"}) RETURN k
-CREATE (k:Zanr {naziv:"Istorijski"}) RETURN k 
+CREATE (k:Zanr {naziv:"Novela"}) RETURN k;
+CREATE (k:Zanr {naziv:"Istorijski"}) RETURN k ;
 
 MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.naziv = "Novela"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.naziv = "Istorijski"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Idi postavi strazara" AND b.naziv = "Istorijski"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
-RETURN type(r)
+RETURN type(r);
 
-MATCH (n:Zanr) WHERE n.naziv=~".*" RETURN n
+MATCH (n:Zanr) WHERE n.naziv=~".*" RETURN n;
 
-MATCH (p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE k.naziv=~ ".*" AND k.godina=~ ".*" AND k.ocena>= ".*" AND  RETURN k
+MATCH (p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE k.naziv=~ ".*" AND k.godina=~ ".*" AND k.ocena>= 0 RETURN k;
 
 MATCH (a:Knjiga),(b:Korisnik)
 WHERE a.naziv = "Idi postavi strazara" AND b.email = "marjanovictamara98@gmail.com"
 CREATE (b)-[r:ZAINTERESOVAN_ZA {da_ne:"DA"}]->(a)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Korisnik)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.email = "marjanovictamara98@gmail.com"
 CREATE (b)-[r:PROCITAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Korisnik)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.email = "marjanovictamara98@gmail.com"
 CREATE (b)-[r:OCENIO{ocena:10,komentar:"",datum:"05:40"}]->(a)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (k:Knjiga {naziv:"Ubiti pticu rugalicu"})
 SET k.ocena=10.0 
-RETURN k.ocena, k.brocena
+RETURN k.ocena, k.brocena;
 
 MATCH (k:Knjiga {naziv:"Ubiti pticu rugalicu"})
 SET k.brocena=1 
-RETURN k.ocena, k.brocena
+RETURN k.ocena, k.brocena;
 
-CREATE (k:Knjiga {naziv:"Pad", godina:"1956", ocena:0.0, brocena: 0}) RETURN k
+CREATE (k:Knjiga {naziv:"Pad", godina:"1956", ocena:0.0, brocena: 0,opis:"Pad je filozofski roman koji Sartr opisao kao 
+„možda najlepši i najmanje razumljiv“ u Kamijevom opusu. Žan-Batist je duša u nemiru.
+ Iz ovog nekada uspešnog advokata i naizgled uzornog građanina tokom nekoliko pijanih noći u amsterdamskom baru provaljuje ubedljiv,
+  poražavajuć katalog krivice, licemerja i otuđenja.Pad je sjajan prikaz čoveka koji je pogledao u šupljinu svog postojanja.
+   Ali mimo toga što prikazuje razočaranje jednog čoveka, Kamijev roman otkriva univerzalno ljudsko stanje i njegove apsurde
+ – u prvom redu apsurd nevinosti koja, jednom izgubljena, nikada ne može biti vraćena."}) RETURN k;
 
-CREATE (k:Pisac {ime:"Alber", prezime:"Kami", biografija:"Dobitnik nobelove nagrade za knjizevnost 1957.godine.", grodjenja: 1913, gsmrti:1960, drzava:"Francuska"}) RETURN k
+CREATE (k:Pisac {ime:"Alber", prezime:"Kami", biografija:"Dobitnik nobelove nagrade za knjizevnost 1957.godine.", grodjenja: 1913, gsmrti:1960, drzava:"Francuska"}) RETURN k;
 
 MATCH (a:Knjiga),(b:Pisac)
 WHERE a.naziv = "Pad" AND b.ime = "Alber"
 CREATE (b)-[r:NAPISAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
-CREATE (k:Zanr {naziv:"Drama"}) RETURN k
+CREATE (k:Zanr {naziv:"Drama"}) RETURN k;
 
 MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Pad" AND b.naziv = "Drama"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (a:Knjiga),(b:Korisnik)
 WHERE a.naziv = "Pad" AND b.email = "marjanovictamara98@gmail.com"
 CREATE (b)-[r:PROCITAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
-MATCH (b:Korisnik)-[r:OCENIO{ocena:10,komentar:"",datum:"05:40"}]->(a:Knjiga)
+MATCH (b:Korisnik)-[r:OCENIO{ocena:10,komentar:"",datum:"2021-13-01"}]->(a:Knjiga)
 WHERE a.naziv = "Ubiti pticu rugalicu" AND b.email = "marjanovictamara98@gmail.com"
-SET r.komentar="Odlicna knjiga"
+SET r.komentar="Odlicna knjiga";
 
 MATCH (b:Korisnik)-[r:ZAINTERESOVAN_ZA {da_ne:"DA"}]->(a:Knjiga)
 WHERE a.naziv = "Idi postavi strazara" AND b.email = "marjanovictamara98@gmail.com"
-DELETE r
+DELETE r;
 
-CREATE (k:Knjiga {naziv:"Stranac", godina:"1942", ocena:0.0, brocena: 0}) RETURN k
+CREATE (k:Knjiga {naziv:"Stranac", godina:"1942", ocena:0.0, brocena: 0}) RETURN k;
 
 MATCH (a:Knjiga),(b:Pisac)
 WHERE a.naziv = "Stranac" AND b.ime = "Alber"
 CREATE (b)-[r:NAPISAO]->(a)
-RETURN type(r)
+RETURN type(r);
 
-CREATE (k:Zanr {naziv:"Klasika"}) RETURN k
+CREATE (k:Zanr {naziv:"Klasika"}) RETURN k;
 
 MATCH (a:Knjiga),(b:Zanr)
 WHERE a.naziv = "Stranac" AND b.naziv = "Klasika"
 CREATE (a)-[r:PRIPADA_ZANRU]->(b)
-RETURN type(r)
+RETURN type(r);
 
 MATCH (b:Korisnik),(a:Korisnik)
 WHERE b.email = "marjanovictamara98@gmail.com" AND a.email = "stefko.1998@hotmail.rs"
-CREATE (b)-[r:PRATI]->(a)
+CREATE (b)-[r:PRATI]->(a);

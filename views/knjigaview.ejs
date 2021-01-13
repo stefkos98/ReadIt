@@ -1,0 +1,84 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]>      <html class="no-js"> <![endif]-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <meta http-equiv="X-UA-Compatible" content="IE=edge">
+        <title>ReadIt</title>
+        <meta name="description" content="">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <style>
+            form{
+                display:inline !important;
+            }
+        </style>
+    </head>
+    <body>
+        <%- include("partials/navbar.ejs") %>
+        <div class='container'> 
+           <h1 id='pisac' style='color:rgb(195,36,48)'><%=tabela[0].get(1).properties.ime%> <%=tabela[0].get(1).properties.prezime%> - <%=book%> </h1>
+           <div style='display:none' id='pisacprikaz'>
+            <h5 style='display:inline'>O piscu:</h5>
+            <p style='display:inline'><%=tabela[0].get(1).properties.biografija%></p>
+            <br>
+            <h5 >Godina rodjenja: <%=tabela[0].get(1).properties.grodjenja%></h5>
+            <h5 >Godina smrti: <%=tabela[0].get(1).properties.gsmrti%></h5>
+
+        </div>
+           <% if(user!=undefined){%>
+            <% if(zainteresovan ==null){%>
+             <form method='post' action='/knjiga/<%=book%>/zainteresovan'><button class='btn btn-success'>Zainteresovan</button> </form>
+             <%} else{%>
+                 <form method='post' action='/knjiga/<%=book%>/zainteresovan'><button class='btn btn-success'>Ukloni Zainteresovan</button> </form>
+                 <%}%>
+             <% if(nezainteresovan==null){%>
+            <form method='post' action='/knjiga/<%=book%>/nezainteresovan'><button class='btn btn-danger'>Nezainteresovan</button> </form>
+            <%} else{%>
+             <form method='post' action='/knjiga/<%=book%>/nezainteresovan'><button class='btn btn-danger'>Ukloni Nezainteresovan</button></form>
+             <%}%>
+ 
+            <% if(procitao==null){%>
+            <form method='post' action='/knjiga/<%=book%>/procitao'><button class='btn btn-dark'>Procitao</button> </form>
+            <%} else{%>
+             <form method='post' action='/knjiga/<%=book%>/procitao'><button class=' btn btn-dark'>Nisam Procitao</button> </form>
+             <%}%>
+
+             <%}%>
+
+           <hr>
+            <h5 style='display:inline'>Opis:</h5>
+            <p style='display:inline'><%=tabela[0].get(0).properties.opis%></p>
+            <br>
+            <h5 >Godina izdavanja: <%=tabela[0].get(0).properties.godina%></h5>
+            <h5 >Država: <%=tabela[0].get(1).properties.drzava%></h5>
+            <h5 >Žanr: 
+            <% for(var i=0;i<tabela.length-1;i++) {%>
+                <%=tabela[i].get(2).properties.naziv%>, 
+            <%}%>
+            <%=tabela[tabela.length-1].get(2).properties.naziv%> 
+
+        </h5>
+        <h5 >Prosecna Ocena: <%=tabela[0].get(0).properties.ocena%></h5>
+        <h5 >Broj ocena i komentara: <%=tabela[0].get(0).properties.brocena%></h5>
+        <h1 style='color:rgb(195,36,48)'>Komentari: </h1>
+        <div class="panel-group">
+            <div class="panel panel-default">
+                <ul class="list-group">
+        <% for(var i=0;i<komentari.length;i++){%>
+                <li class="list-group-item"><h4>Datum ocene: <%=komentari[i].get(0).properties.datum%></h4>
+                <h4>Korisnik: <%=komentari[i].get(1).properties.username%></h4>
+                <h3>Ocena: <%=komentari[i].get(0).properties.ocena%></h3>
+                <h4>Komentar: <%=komentari[i].get(0).properties.komentar%></h4>
+                </li>
+
+        <%}%>
+        </ul>
+        </div></div></div>
+         <script src='/knjigaview.js'></script>
+
+        <%- include("partials/footer.ejs") %>
+    </body>
+</html>

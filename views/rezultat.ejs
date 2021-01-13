@@ -31,6 +31,8 @@
                                         <th scope="col">Žanr</th>
                                         <th scope="col">Pisac</th>
                                         <th scope="col">Država</th>
+                                        <th scope="col"></th>
+
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -49,6 +51,7 @@
                                         <%s="";%>
                                         <td><%=tabela[i].get(2).properties.ime%> <%=tabela[i].get(2).properties.prezime%></td>
                                         <td><%=tabela[i].get(2).properties.drzava%></td>
+                                        <td><a class='btn btn-dark' href='/rezultat/<%=tabela[i].get(0).properties.naziv%>'>Detaljnije</a></td>
                                     </tr>
                                     <%}%>
                                 </tbody>
