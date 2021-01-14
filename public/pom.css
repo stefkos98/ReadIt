@@ -7,7 +7,7 @@
 }
 .list-group-item.active{
     z-index: 0 !important;
-    background-color: #17a2b8 !important;
+    background-color: rgb(195, 36, 48) !important;
     border: none !important;}
     .form-control{
         margin-top: 0.5%;
