@@ -21,7 +21,7 @@
         <div class='container'>
             <div class='row'>
                 <div class='col-md-3'>
-                    <p class='lead' style="color: rgb(0, 89, 255);">ReadIt</p>
+                    <p class='lead' style="color:rgb(195,36,48);">ReadIt</p>
                     <div class='list-group'>
                         <button id="b1" type="button" class='list-group-item list-group-item-action'
                             data-toggle="list">Prikaži podatke o korisniku</button>
@@ -66,7 +66,7 @@
                                     <%= user.email %>
                                 </dd>
 
-                                <button style="margin-left: 170px; width: 150px;" id="btn1" class="btn btn-info">Izmeni
+                                <button style="margin-left: 170px; width: 150px;" id="btn1" class="btn btn-dark">Izmeni
                                     podatke</button>
                             </dl>
                             <hr>
@@ -127,7 +127,7 @@
                                         required>
                                 </div>
 
-                                <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                                <button type="submit" class="btn btn-dark">Sačuvaj</button>
                             </form>
                             <%}%>
                                 <br>
@@ -223,13 +223,13 @@
                                                                             <form method='post'
                                                                                 action='/profile/obrisiocenu/<%=user.email%>/<%=tabela1[i].get(0).properties.naziv%>/<%=tabela1[i].get(0).properties.godina%>/<%=tabela1[i].get(0).properties.brocena%>/<%=tabela1[i].get(0).properties.ocena%>/<%=o[i]%>/<%=kom[i]%>?_method=DELETE'>
                                                                                 <button type="submit"
-                                                                                    class="btn btn-info"> Izbrisi ocenu
+                                                                                    class="btn btn-danger"> Izbrisi ocenu
                                                                                     i komentar</button>
                                                                             </form>
                                                                         </td>
                                                                         <%}else{%>
                                                                             <td><button type="button" id="btn0"
-                                                                                    class="btn btn-info btn0"
+                                                                                    class="btn btn-dark btn0"
                                                                                     value="<%=tabela1[i].get(0).properties.godina%> <%=tabela1[i].get(0).properties.ocena%> <%=tabela1[i].get(0).properties.brocena%> <%=tabela1[i].get(0).properties.naziv%>">
                                                                                     Oceni knjigu i dodaj
                                                                                     komentar</button>
@@ -259,7 +259,7 @@
                                 <input type="text" id="inputKomentar" class="form-control" name='komentar' value="">
                             </div>
 
-                            <button type="submit" class="btn btn-primary">Sačuvaj</button>
+                            <button type="submit" class="btn btn-dark">Sačuvaj</button>
                         </form>
                     </div>
 
@@ -321,14 +321,14 @@
                                                                         <form method='post'
                                                                             action='/profile/izbaci/<%=user.email%>/<%=tabela2[i].get(0).properties.naziv%>/<%=tabela2[i].get(0).properties.godina%>?_method=DELETE'>
                                                                             <button type="submit"
-                                                                                class="btn btn-info">Izbaci</button>
+                                                                                class="btn btn-danger">Izbaci</button>
                                                                         </form>
                                                                     </td>
                                                                     <td>
                                                                         <form method='post'
                                                                             action='/profile/procitanoizlistezelja/<%=user.email%>/<%=tabela2[i].get(0).properties.naziv%>/<%=tabela2[i].get(0).properties.godina%>?_method=PUT'>
                                                                             <button type="submit"
-                                                                                class="btn btn-info">Pročitano</button>
+                                                                                class="btn btn-dark">Pročitano</button>
                                                                         </form>
                                                                     </td>
                                                 </tr>
@@ -377,12 +377,12 @@
                                                         <%=tabela3[i].get(0).properties.username%>
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-info">Izlistaj</button>
+                                                        <button type="button" class="btn btn-dark">Izlistaj</button>
                                                     </td>
                                                     <td>
                                                         <form method='post'
                                                             action='/profile/ukloniprijatelja/<%=user.email%>/<%=tabela3[i].get(0).properties.email%>?_method=DELETE'>
-                                                            <button type="submit" class="btn btn-info">Ukloni</button>
+                                                            <button type="submit" class="btn btn-danger">Ukloni</button>
                                                         </form>
                                                     </td>
                                                 </tr>

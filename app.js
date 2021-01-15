@@ -11,7 +11,7 @@ app.use(express.static("public"));
 // NEO4J
 var neo4j = require('neo4j-driver');
 var driver = neo4j.driver(
-  'bolt://localhost:7687',
+  'bolt://localhost:11002',
   neo4j.auth.basic('neo4j', 'Ss1998!!!')
 )
 var session = driver.session();
