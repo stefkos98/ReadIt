@@ -343,7 +343,7 @@
                         <!-- STEFAN KUCA OVDEEEE -->
                     </div>
 
-                    <div id="id6" class='col-md-9'>
+                    <div id="id6">
                         <% if(tabela1==undefined){ %>
                             <h1> Nemate prijatelje</h1>
                             <br>
@@ -357,7 +357,8 @@
                                                 <th scope="col">Ime</th>
                                                 <th scope="col">Prezime</th>
                                                 <th scope="col">Username</th>
-                                                <th scope="col">Izlistaj knjige koje je pročitao</th>
+                                                <th scope="col">Knjige koje je pročitao</th>
+                                                <th scope="col">Knjige za koje je zainteresovan</th>
                                                 <th scope="col">Ukloni iz liste prijatelja</th>
                                             </tr>
                                         </thead>
@@ -377,8 +378,13 @@
                                                         <%=tabela3[i].get(0).properties.username%>
                                                     </td>
                                                     <td>
-                                                        <form method='get' action='/profile/izlistajknjige/<%=tabela3[i].get(0).properties.email%>'>
-                                                            <button type="submit" class="btn btn-dark">Izlistaj</button>
+                                                        <form method='get' action='/profile/izlistajprocitaneknjige/<%=tabela3[i].get(0).properties.email%>'>
+                                                            <button type="submit" class="btn btn-dark">Prikaži</button>
+                                                        </form>
+                                                    </td>
+                                                    <td>
+                                                        <form method='get' action='/profile/izlistajzainteresovaneknjige/<%=tabela3[i].get(0).properties.email%>'>
+                                                            <button type="submit" class="btn btn-dark">Prikaži</button>
                                                         </form>
                                                     </td>
                                                     <td>
