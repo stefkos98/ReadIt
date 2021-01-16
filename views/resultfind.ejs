@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<!--[if lt IE 7]>      <html class="no-js lt-ie9 lt-ie8 lt-ie7"> <![endif]-->
+<!--[if IE 7]>         <html class="no-js lt-ie9 lt-ie8"> <![endif]-->
+<!--[if IE 8]>         <html class="no-js lt-ie9"> <![endif]-->
+<!--[if gt IE 8]><!-->
+<html class="no-js">
+<!--<![endif]-->
+
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title></title>
+    <meta name="description" content="">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="pom.css">
+
+</head>
+
+<body>
+    <%- include ('partials/navbar.ejs')%>
+        <div class='container ' style='width:80%;'>
+            <ul>
+                <div class='jumbotron'>
+                    <h1 style="margin-left: 15px;">Pronadji prijatelje</h1>
+                </div>
+                <div class='row' id="id4" style=' margin-left: 4px; width:100%;'>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Ime</th>
+                                        <th scope="col">Prezime</th>
+                                        <th scope="col">Username</th>
+                                        <th scope="col">Email</th>
+                                        <th scope="col">Telefon</th>
+                                        <th scope="col"></th>
+
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <%if (prijatelji!=undefined) {%>
+                                    <% for(var i=0;i<prijatelji.length;i++){%>
+                                    <tr>
+                                        <th scope="row"><%=i+1%></th>
+                                        <td><%=prijatelji[i].get(0).properties.ime%></td>
+                                        <td><%=prijatelji[i].get(0).properties.prezime%></td>
+                                        <td><%=prijatelji[i].get(0).properties.username%></td>
+                                        <td><%=prijatelji[i].get(0).properties.email%></td>
+                                        <td><%=prijatelji[i].get(0).properties.telefon%></td>
+                                        <%if (user.email!=prijatelji[i].get(0).properties.email) {%>
+                                        <td>
+                                            <form method='post' action='/dodaj/email/<%=user.email%>/<%=prijatelji[i].get(0).properties.email%>'>
+                                                <button  style='background-color:rgb(195,36,48); color: white;' type="submit" class="btn">Dodaj prijatelja</button>
+                                            </form>
+                                        </td>
+                                        <%}else{%>
+                                            <td></td>
+                                        <%}%>
+                                    </tr>
+                                    <%}%>
+                                    <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                </div>
+            </ul>
+        </div>
+    <%- include ('partials/footer.ejs'); %>
+
+</html>
