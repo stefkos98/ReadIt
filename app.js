@@ -192,6 +192,14 @@ app.get("/profile", async function (req, res) {
   }
 });
 
+app.get("/profile/izlistajknjige/:email1", async function (req, res) {
+
+  let tabela = await session.run('MATCH (n:Korisnik)-[r0:PROCITAO]->(k:Knjiga),(p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e  WITH k, p, z ORDER BY k.naziv RETURN k,z,p', { e: req.params.email1 });
+  let s = "";
+  let k = 1;
+  res.render("rezultat.ejs", { user: req.user, tabela: tabela.records, s, k });
+});
+
 app.put("/profile/oceni/:email", async function (req, res) {
   let email = req.params.email.toString();
   let words = req.body.skriven.split(" ");

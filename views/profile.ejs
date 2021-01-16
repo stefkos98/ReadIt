@@ -357,7 +357,7 @@
                                                 <th scope="col">Ime</th>
                                                 <th scope="col">Prezime</th>
                                                 <th scope="col">Username</th>
-                                                <th scope="col">Izlistaj njegove ocene</th>
+                                                <th scope="col">Izlistaj knjige koje je pročitao</th>
                                                 <th scope="col">Ukloni iz liste prijatelja</th>
                                             </tr>
                                         </thead>
@@ -377,7 +377,9 @@
                                                         <%=tabela3[i].get(0).properties.username%>
                                                     </td>
                                                     <td>
-                                                        <button type="button" class="btn btn-dark">Izlistaj</button>
+                                                        <form method='get' action='/profile/izlistajknjige/<%=tabela3[i].get(0).properties.email%>'>
+                                                            <button type="submit" class="btn btn-dark">Izlistaj</button>
+                                                        </form>
                                                     </td>
                                                     <td>
                                                         <form method='post'
