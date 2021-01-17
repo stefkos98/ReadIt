@@ -30,7 +30,7 @@
                         <button id="b3" type="button" class='list-group-item list-group-item-action'
                             data-toggle="list">Prikaži knjige koje želim da pročitam</button>
                         <button id="b4" type="button" class='list-group-item list-group-item-action'
-                            data-toggle="list">Personalizovana pretraga</button>
+                            data-toggle="list">Personalizovana preporuka</button>
                         <button id="b6" type="button" class='list-group-item list-group-item-action'
                             data-toggle="list">Prikaži prijatelje</button>
                     </div>
@@ -221,7 +221,7 @@
                                                                         </td>
                                                                         <td>
                                                                             <form method='post'
-                                                                                action='/profile/obrisiocenu/<%=user.email%>/<%=tabela1[i].get(0).properties.naziv%>/<%=tabela1[i].get(0).properties.godina%>/<%=tabela1[i].get(0).properties.brocena%>/<%=tabela1[i].get(0).properties.ocena%>/<%=o[i]%>/<%=kom[i]%>?_method=DELETE'>
+                                                                                action='/profile/obrisiocenu/<%=user.email%>/<%=tabela1[i].get(0).properties.naziv%>/<%=tabela1[i].get(0).properties.godina%>/<%=tabela1[i].get(0).properties.brocena%>/<%=tabela1[i].get(0).properties.ocena%>/<%=o[i]%>?_method=DELETE'>
                                                                                 <button type="submit"
                                                                                     class="btn btn-danger"> Izbrisi ocenu
                                                                                     i komentar</button>
@@ -339,8 +339,123 @@
                                 <%}%>
                     </div>
 
-                    <div id="id5" class='col-md-9'>
+                    <div id="id5">
                         <!-- STEFAN KUCA OVDEEEE -->
+                        <h1>Naslovi koji bi mogli da Vas zainteresuju:</h1>
+                        <div class="table-responsive">
+                            <table class="table table-hover">
+                                <thead class="thead-dark">
+                                    <tr>
+                                        <th scope="col">#</th>
+                                        <th scope="col">Naziv</th>
+                                        <th scope="col">Godina</th>
+                                        <th scope="col">Ocena</th>
+                                        <th scope="col">Žanr</th>
+                                        <th scope="col">Pisac</th>
+                                        <th scope="col">Država</th>
+                                        <th scope="col"></th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <% for(var i=0;i<limit;i++){%>
+                                        <tr>
+                                            <%if (i<limit-1 &&
+                                                tabela4[i].get(0).properties.naziv==tabela4[i+1].get(0).properties.naziv){%>
+                                                <%s2+=", ";%>
+                                            <%s2+=tabela4[i].get(1).properties.naziv;%>
+                                            <%continue;%>
+                                            <%}%>
+                                            <th scope=" row">
+                                                    <%=k2++%>
+                                            </th>
+                                            <td>
+                                                <%=tabela4[i].get(0).properties.naziv%>
+                                            </td>
+                                            <td>
+                                                <%=tabela4[i].get(0).properties.godina%>
+                                            </td>
+                                            <td>
+                                                <%=tabela4[i].get(0).properties.ocena%>
+                                            </td>
+                                            <td>
+                                                <%=tabela4[i].get(1).properties.naziv%>
+                                                <%=s2%>
+                                            </td>
+                                                <%s2="";%>
+                                            <td>
+                                                <%=tabela4[i].get(2).properties.ime%>
+                                                <%=tabela4[i].get(2).properties.prezime%>
+                                            </td>
+                                            <td>
+                                                <%=tabela4[i].get(2).properties.drzava%>
+                                            </td>
+                                            <td><a class='btn btn-dark' href='/rezultat/<%=tabela4[i].get(0).properties.naziv%>'>Detaljnije</a></td>
+                                        </tr>
+                                        <%}%>
+                                </tbody>
+                            </table>
+                        </div>
+                        
+                        <h1>Naslovi koji bi mogli da Vas zainteresuju na osnovu zanra:</h1>
+                       
+                                    <% for(var k=0;k<limiti.length;k++){%>
+                                        <div class="table-responsive">
+                                            <table class="table table-hover">
+                                                <thead class="thead-dark">
+                                                    <tr>
+                                                        <th scope="col">#</th>
+                                                        <th scope="col">Naziv</th>
+                                                        <th scope="col">Godina</th>
+                                                        <th scope="col">Ocena</th>
+                                                        <th scope="col">Žanr</th>
+                                                        <th scope="col">Pisac</th>
+                                                        <th scope="col">Država</th>
+                                                        <th scope="col"></th>
+                                                    </tr>
+                                                </thead>
+                                                <tbody>
+                                            <% for(var i=0;i<limiti[k];i++){%>
+                                        <tr>
+                                            <%if (i<limiti[k]-1 &&
+                                            tabele[k][i].get(0).properties.naziv==tabele[k][i+1].get(0).properties.naziv){%>
+                                                <%s3+=", ";%>
+                                            <%s3+=tabele[k][i].get(1).properties.naziv;%>
+                                            <%continue;%>
+                                            <%}%>
+                                            <th scope=" row">
+                                                    <%=k3++%>
+                                            </th>
+                                            <td>
+                                                <%=tabele[k][i].get(0).properties.naziv%>
+                                            </td>
+                                            <td>
+                                                <%=tabele[k][i].get(0).properties.godina%>
+                                            </td>
+                                            <td>
+                                                <%=tabele[k][i].get(0).properties.ocena%>
+                                            </td>
+                                            <td>
+                                                <%=tabele[k][i].get(1).properties.naziv%>
+                                                <%=s3%>
+                                            </td>
+                                                <%s3="";%>
+                                            <td>
+                                                <%=tabele[k][i].get(2).properties.ime%>
+                                                <%=tabele[k][i].get(2).properties.prezime%>
+                                            </td>
+                                            <td>
+                                                <%=tabele[k][i].get(2).properties.drzava%>
+                                            </td>
+                                            <td><a class='btn btn-dark' href='/rezultat/<%=tabele[k][i].get(0).properties.naziv%>'>Detaljnije</a></td>
+                                        </tr>
+                                            <%}%>
+                                            <%s3="";%>
+                                            <%k3=1;%>
+                                </tbody>
+                            </table>
+                            
+                        </div>
+                        <%}%>   
                     </div>
 
                     <div id="id6">

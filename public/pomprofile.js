@@ -2,6 +2,7 @@ var b1 = document.getElementById("b1");
 var b2 = document.getElementById("b2");
 var b3 = document.getElementById("b3");
 var b4 = document.getElementById("b4");
+var b5 = document.getElementById("b5");
 var b6 = document.getElementById("b6");
 var btn1 = document.getElementById("btn1");
 
