@@ -209,7 +209,8 @@ app.get("/profile", async function (req, res) {
       //po zanrovima
      izdvoji_sve_zainteresovane = await session.run('MATCH (n:Korisnik)-[r0:ZAINTERESOVAN_ZA {da_ne:"DA"}]->(k:Knjiga),(p:Pisac)-[r1:NAPISAO]->(k :Knjiga)-[r2:PRIPADA_ZANRU]->(z:Zanr) WHERE n.email= $e  WITH k, p, z ORDER BY k.naziv RETURN DISTINCT z', { e: req.user.email });
      var zanrovirandom=[];
-     var limiti=[0,0,0];
+     var zanrovibrojke=[];
+     var limiti=[];
      var tabele=[];
       if(izdvoji_sve_zainteresovane.records.length != 0)
       { 
@@ -223,10 +224,18 @@ app.get("/profile", async function (req, res) {
           while(i<3)
           {
              var x= Math.floor(Math.random()*(izdvoji_sve_zainteresovane.records.length-1));
-             if(zanrovirandom.indexOf(x)==-1)
+             if(zanrovibrojke.indexOf(x)==-1)
              {
+               zanrovibrojke.push(x);
                zanrovirandom.push(izdvoji_sve_zainteresovane.records[x]);i++;
              }
+          }
+        
+          for (var i = 0; i < duzina; i++)       
+           { preporuke = await session.run('MATCH (p:Pisac)-[r2:NAPISAO]->(k :Knjiga)-[r3:PRIPADA_ZANRU]->(z:Zanr) WHERE z.naziv=~ $n WITH k, p, z ORDER BY k.naziv DESC RETURN DISTINCT k, z, p', { n: zanrovirandom[i].get(0).properties.naziv });                   
+            limiti.push(preporuke.records.length);
+            tabele[i]=preporuke.records; 
+            if(limiti[i]>15) limiti[i]=15;
           }
         }
         else
@@ -247,7 +256,7 @@ app.get("/profile", async function (req, res) {
             if(limiti[i]>15) limiti[i]=15;
           }
         }
-        // if(limit2>20) limit2=20;     
+        // if(limit2>20) limit2=20;          
       }
       else
       {       
