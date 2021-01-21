@@ -427,7 +427,7 @@ app.put("/profile/edit/:email", async function (req, res) {
 // BRISANJE KORISNIKOVOG PROFILA
 app.delete("/profile/:email", async function (req, res) {
   let email = req.params.email.toString();
-  await session.run('MATCH (n:Korisnik) WHERE n.email = $e DELETE n', { e: email });
+  await session.run('MATCH (n:Korisnik) WHERE n.email = $e DETACH DELETE n', { e: email });
 
   req.logout();
   req.flash("success", "Uspesno ste obrisali nalog ")
@@ -573,7 +573,7 @@ app.post("/profile/admin/zanr", async (req, res) => {
   }
 })
 app.delete("/profile/admin/:zanr", async (req, res) => {
-  var zanr = await session.run('MATCH (n:Zanr) WHERE n.naziv=$n1 delete n', { n1: req.params.zanr });
+  var zanr = await session.run('MATCH (n:Zanr) WHERE n.naziv=$n1 DETACH DELETE n', { n1: req.params.zanr });
   req.flash("success", "Uspesno ste obrisali zanr");
   res.redirect("/profile");
 })
@@ -584,9 +584,16 @@ app.post("/profile/admin/knjiga", async (req, res) => {
   }
   else {
     var knjiga = await session.run('CREATE (k:Knjiga{naziv:$k1,godina:$k2,opis:$k3,brocena:0,ocena:0.0}) return k', { k1: req.body.naziv, k2: req.body.godina.toString(), k3: req.body.opis });
+    if(typeof(req.body.zanr)==='object'){
     for (var i = 0; i < req.body.zanr.length; i++)
       var zanr = await session.run('MATCH (a:Knjiga),(b:Zanr) WHERE a.naziv = $k1 AND b.naziv = $k2 CREATE (a)-[r:PRIPADA_ZANRU]->(b)RETURN type(r);', { k1: req.body.naziv, k2: req.body.zanr[i] });
-    var pisac = req.body.autor.split(' ');
+    }
+    else
+    {
+      var zanr = await session.run('MATCH (a:Knjiga),(b:Zanr) WHERE a.naziv = $k1 AND b.naziv = $k2 CREATE (a)-[r:PRIPADA_ZANRU]->(b)RETURN type(r);', { k1: req.body.naziv, k2: req.body.zanr });
+
+    }
+      var pisac = req.body.autor.split(' ');
     var pisacbaza = await session.run('MATCH(n:Pisac) where n.ime=$n1 AND n.prezime=$n2 return n', { n1: pisac[0], n2: pisac[1] });
     if (pisacbaza.records.length > 0) {
       var veza = await session.run('MATCH (a:Knjiga),(b:Pisac) WHERE a.naziv = $k1 AND b.ime =$k2 AND b.prezime=$k3  CREATE (b)-[r:NAPISAO]->(a) RETURN type(r);', { k1: req.body.naziv, k2: pisac[0], k3: pisac[1] });
